@@ -12,8 +12,7 @@ public class BasePage {
         cap.setCapability("udid", "emulator-5554");
         cap.setCapability("deviceName", "device");
         cap.setCapability("platformVersion", "8.1");
-        // TODO: брать приложение из ресурсов
-        cap.setCapability("app", "src\\test\\resources\\apk\\instagram.apk");
+        cap.setCapability("app", System.getProperty("user.dir") + "\\src\\test\\resources\\apk\\instagram.apk");
         cap.setCapability("appPackage", "com.instagram.android");
         cap.setCapability("appActivity", "com.instagram.nux.activity.SignedOutFragmentActivity");
         cap.setCapability("noReset", "true");
