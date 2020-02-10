@@ -13,9 +13,9 @@ public class BasePage {
         cap.setCapability("deviceName", "device");
         cap.setCapability("platformVersion", "8.1");
         // TODO: брать приложение из ресурсов
-        cap.setCapability("app", System.getProperty("appium.app"));
-        cap.setCapability("appPackage", "");
-        cap.setCapability("appActivity", "");
+        cap.setCapability("app", "src\\test\\resources\\apk\\instagram.apk");
+        cap.setCapability("appPackage", "com.instagram.android");
+        cap.setCapability("appActivity", "com.instagram.nux.activity.SignedOutFragmentActivity");
         cap.setCapability("noReset", "true");
         cap.setCapability("fullReset", "false");
         cap.setCapability("newCommandTimeout", "30000");
