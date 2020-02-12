@@ -6,13 +6,18 @@ public class AuthSteps {
     private AuthPage authPage = new AuthPage();
 
     /**
-     * РњРµС‚РѕРґ Р°РІС‚РѕСЂРёР·СѓРµС‚ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
-     * @param login String Р»РѕРіРёРЅ
-     * @param pass String РїР°СЂРѕР»СЊ
+     * Метод авторизует пользователя
+     * @param login String логин
+     * @param pass String пароль
      */
     public void auth(String login, String pass) {
+        authPage.waitUntilAnyElementWithTextIsVisible("Войти");
+        authPage.clickAnyElementWithText("Войти");
+        authPage.waitUntilAnyElementWithTextIsVisible("Вход");
         authPage.setLogin(login);
         authPage.setPass(pass);
-        authPage.clickSignInBtn();
+        authPage.clickAnyElementWithText("Вход");
+        authPage.waitUntilAnyElementWithTextIsNotVisible("Вход");
+        authPage.waitUntilAnyElementWithContDescIsVisible("Дом");
     }
 }

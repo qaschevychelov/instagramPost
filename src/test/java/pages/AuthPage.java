@@ -3,28 +3,28 @@ package pages;
 import org.openqa.selenium.By;
 
 public class AuthPage extends BasePage {
-    private final String XPATH_LOGIN = "//*[@resource-id='']";
-    private final String XPATH_PASS = "//*[@resource-id='']";
+    private final String XPATH_LOGIN = "//*[@resource-id='com.instagram.android:id/login_username']";
+    private final String XPATH_PASS = "//*[@resource-id='com.instagram.android:id/password']";
     private final String XPATH_SIGN_IN_BTN = "//*[@resource-id='']";
 
     /**
-     * РњРµС‚РѕРґ Р·Р°РґР°РµС‚ Р»РѕРіРёРЅ
-     * @param login String Р»РѕРіРёРЅ
+     * Метод задает логин
+     * @param login String логин
      */
     public void setLogin(String login) {
         getDriver().findElement(By.xpath(XPATH_LOGIN)).sendKeys(login);
     }
 
     /**
-     * РњРµС‚РѕРґ Р·Р°РґР°РµС‚ РїР°СЂРѕР»СЊ
-     * @param pass String РїР°СЂРѕР»СЊ
+     * Метод задает пароль
+     * @param pass String пароль
      */
     public void setPass(String pass) {
         getDriver().findElement(By.xpath(XPATH_PASS)).sendKeys(pass);
     }
 
     /**
-     * РњРµС‚РѕРґ РєР»РёРєР°РµС‚ РЅР° РєРЅРѕРїРєСѓ РІС…РѕРґР°
+     * Метод кликает на кнопку входа
      */
     public void clickSignInBtn() {
         getDriver().findElement(By.xpath(XPATH_SIGN_IN_BTN)).click();
