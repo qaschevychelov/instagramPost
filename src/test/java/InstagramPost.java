@@ -6,12 +6,12 @@ import steps.AuthSteps;
 import static org.junit.Assert.fail;
 
 /**
- * Автотест для Instagram
+ * РђРІС‚РѕС‚РµСЃС‚ РґР»СЏ Instagram
  */
 public class InstagramPost extends BasePage {
     private AuthSteps authSteps;
 
-    // тестовые данные
+    // С‚РµСЃС‚РѕРІС‹Рµ РґР°РЅРЅС‹Рµ
     private String login = "";
     private String pass = "";
 
@@ -20,7 +20,7 @@ public class InstagramPost extends BasePage {
         authSteps = new AuthSteps();
     }
 
-    @Test(enabled = true, description = "Авторизация в instagram")
+    @Test(enabled = true, description = "РђРІС‚РѕСЂРёР·Р°С†РёСЏ РІ instagram")
     public void step_01() {
         try {
             authSteps.auth(login, pass);

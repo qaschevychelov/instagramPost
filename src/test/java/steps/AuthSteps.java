@@ -6,9 +6,9 @@ public class AuthSteps {
     private AuthPage authPage = new AuthPage();
 
     /**
-     * Метод проходит авторизацию
-     * @param login String логин
-     * @param pass String пароль
+     * РњРµС‚РѕРґ Р°РІС‚РѕСЂРёР·СѓРµС‚ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+     * @param login String Р»РѕРіРёРЅ
+     * @param pass String РїР°СЂРѕР»СЊ
      */
     public void auth(String login, String pass) {
         authPage.setLogin(login);

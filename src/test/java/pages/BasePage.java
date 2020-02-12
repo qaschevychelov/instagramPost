@@ -12,7 +12,7 @@ public class BasePage {
     private AndroidDriver driver;
 
     /**
-     * Метод возвращает инстанс драйвера
+     * РњРµС‚РѕРґ РІРѕР·РІСЂР°С‰Р°РµС‚ РёРЅСЃС‚Р°РЅСЃ РґСЂР°Р№РІРµСЂР°
      * @return AndroidDriver
      */
     public AndroidDriver getDriver() {
@@ -45,8 +45,8 @@ public class BasePage {
     }
 
     /**
-     * Метод дожидается видимости
-     * @param webElement WebElement элемент
+     * РњРµС‚РѕРґ РґРѕР¶РёРґР°РµС‚СЃСЏ РІРёРґРёРјРѕСЃС‚Рё СЌР»РµРјРµРЅС‚Р°
+     * @param webElement WebElement СЌР»РµРјРµРЅС‚
      */
     public void waitUntilVisible(WebElement webElement) {
         for (int i = 0; i < 60; i++) {
@@ -64,8 +64,8 @@ public class BasePage {
     }
 
     /**
-     * Метод дожидается исчезновения
-     * @param webElement WebElement элемент
+     * РњРµС‚РѕРґ РґРѕР¶РёРґР°РµС‚СЃСЏ РёСЃС‡РµР·РЅРѕРІРµРЅРёСЏ СЌР»РµРјРµРЅС‚Р°
+     * @param webElement WebElement СЌР»РµРјРµРЅС‚
      */
     public void waitUntilNotVisible(WebElement webElement) {
         for (int i = 0; i < 60; i++) {
