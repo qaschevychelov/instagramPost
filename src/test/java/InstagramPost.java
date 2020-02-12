@@ -1,26 +1,29 @@
-import io.appium.java_client.android.AndroidDriver;
-import org.slf4j.MDC;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import java.util.concurrent.TimeUnit;
+import pages.BasePage;
+import steps.AuthSteps;
 
 import static org.junit.Assert.fail;
 
+/**
+ * Автотест для Instagram
+ */
 public class InstagramPost extends BasePage {
-    AndroidDriver driver;
+    private AuthSteps authSteps;
+
+    // тестовые данные
+    private String login = "";
+    private String pass = "";
 
     @BeforeClass
     public void before() {
-        driver = getDriver();
-        driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+        authSteps = new AuthSteps();
     }
 
     @Test(enabled = true, description = "Авторизация в instagram")
-    public void auth_01() {
+    public void step_01() {
         try {
-            MDC.put("instagramPostAuth", "Авторизация");
-
+            authSteps.auth(login, pass);
         } catch (Throwable e) {
             fail(e.getMessage());
         }
