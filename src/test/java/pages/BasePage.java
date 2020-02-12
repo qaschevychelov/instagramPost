@@ -7,6 +7,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
@@ -17,45 +18,22 @@ import java.util.Objects;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class BasePage {
-    private AndroidDriver driver;
+    public AndroidDriver driver;
 
     private final String XPATH_ANY_ELEM_WITH_TEXT = "//*[@text='%s']";
     private final String XPATH_ANY_ELEM_WITH_CONTENT_DESC = "//*[@content-desc='%s']";
+    private final String XPATH_ALLOW_CAMERA = "//*[@text='РАЗРЕШИТЬ' or @text='Разрешить']";
+
+    // нижнее меню
+    private final String XPATH_CAMERA_BOTTOM_MENU = "//*[@content-desc='Камера']" +
+            "//*[@resource-id='com.instagram.android:id/tab_icon']";
 
     /**
-     * Метод возвращает инстанс драйвера
+     * Возвращает объект драйвера
      * @return AndroidDriver
      */
     public AndroidDriver getDriver() {
-        if (this.driver != null) {
-            return this.driver;
-        }
-        else {
-            String udid = (System.getProperty("udid") != null) ? System.getProperty("udid") : "emulator-5554";
-            invokeCmdCommand("adb -s " + udid + " shell pm clear com.instagram.android");
-
-            DesiredCapabilities cap = new DesiredCapabilities();
-            cap.setCapability("platformName", "Android");
-            cap.setCapability("udid", udid);
-            cap.setCapability("deviceName", "device");
-            cap.setCapability("platformVersion", "8.1");
-            cap.setCapability("app", System.getProperty("user.dir") + "/src/test/resources/apk/instagram.apk");
-            cap.setCapability("appPackage", "com.instagram.android");
-            cap.setCapability("appWaitActivity", "com.instagram.nux.activity.SignedOutFragmentActivity");
-            cap.setCapability("noReset", "true");
-            cap.setCapability("fullReset", "false");
-            cap.setCapability("newCommandTimeout", "30000");
-            cap.setCapability("automationName", "UiAutomator2");
-            try {
-                System.out.println("starting new driver..." + LocalDateTime.now().toString());
-                this.driver = new AndroidDriver(new URL("http://localhost:4723/wd/hub"), cap);
-                System.out.println("new driver is started!" + LocalDateTime.now().toString());
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-            return this.driver;
-        }
-
+        return driver;
     }
 
     /**
@@ -66,68 +44,78 @@ public class BasePage {
         getDriver().activateApp(appPackage);
     }
 
-    private static void invokeCmdCommand(String command) {
-        Process process = null;
-        try {
-            process = Runtime.getRuntime().exec(command);
-        } catch (IOException e) {
-            assertThat(e.getMessage(), false);
-        }
-        try (
-                BufferedReader stdInput = new BufferedReader(new
-                        InputStreamReader(Objects.requireNonNull(process).getInputStream()));
-                BufferedReader stdError = new BufferedReader(new
-                        InputStreamReader(process.getErrorStream()))
-        ) {
-            String msg;
-            // считываем вывод команды
-            while ((msg = stdInput.readLine()) != null) {
-                System.out.println("Команда вернула следующее сообщение: " + msg);
-            }
-            // считываем ошибки, если есть
-            while ((msg = stdError.readLine()) != null) {
-                System.out.println("Результат команды: " + msg);
-            }
-        } catch (IOException e) {
-            assertThat(e.getMessage(), false);
-        }
-    }
-
     /**
-     * Метод дожидается видимости элемента
-     * @param webElement WebElement элемент
+     * При первом запуске приложения, когда тест обращается к камере, система требует разрешения.
+     * Метод разрешает доступ к камере устройства, если это необходимо.
      */
-    public void waitUntilVisible(WebElement webElement) {
-        for (int i = 0; i < 60; i++) {
+    public void allowCameraRecording() {
+        int count = 0;
+        while (count < 3) {
+            count++;
             try {
-                if (webElement.isDisplayed())
+                waitAbit(2000);
+                if (isElementVisible(XPATH_ALLOW_CAMERA)) {
+                    getDriver().findElement(By.xpath(XPATH_ALLOW_CAMERA)).click();
+                    waitUntilNotVisible(XPATH_ALLOW_CAMERA);
                     break;
+                }
             } catch (Throwable e) {
-                try {
-                    Thread.sleep(300);
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
+                waitAbit(2000);
+                if (isElementVisible(XPATH_ALLOW_CAMERA)) {
+                    getDriver().findElement(By.xpath(XPATH_ALLOW_CAMERA)).click();
+                    waitUntilNotVisible(XPATH_ALLOW_CAMERA);
+                    break;
                 }
             }
         }
     }
 
     /**
-     * Метод дожидается исчезновения элемента
-     * @param webElement WebElement элемент
+     * Метод дожидается видимости элемента
+     * @param locator String локатор элемента
      */
-    public void waitUntilNotVisible(WebElement webElement) {
+    public void waitUntilVisible(String locator) {
         for (int i = 0; i < 60; i++) {
-            try {
-                if (webElement.isDisplayed())
-                    try {
-                        Thread.sleep(300);
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
-            } catch (Throwable e) {
+            if (isElementVisible(locator))
                 break;
-            }
+            else waitAbit(300);
+        }
+    }
+
+    /**
+     * Метод возвращает видимость элемента
+     * @param locator String локатор элемента
+     * @return boolean
+     */
+    public boolean isElementVisible(String locator) {
+        try {
+            return getDriver().findElement(By.xpath(locator)).isDisplayed();
+        } catch (Throwable e) {
+            return false;
+        }
+    }
+
+    /**
+     * Метод дожидается исчезновения элемента
+     * @param locator String локатор элемента
+     */
+    public void waitUntilNotVisible(String locator) {
+        for (int i = 0; i < 60; i++) {
+            if (isElementVisible(locator))
+                waitAbit(300);
+            else break;
+        }
+    }
+
+    /**
+     * Метод ждет
+     * @param mills long количество миллисекунд
+     */
+    public void waitAbit(long mills) {
+        try {
+            Thread.sleep(mills);
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -141,11 +129,7 @@ public class BasePage {
                 if (getDriver().findElement(By.xpath(String.format(XPATH_ANY_ELEM_WITH_TEXT, text))).isDisplayed())
                     break;
             } catch (Throwable e) {
-                try {
-                    Thread.sleep(300);
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
+                waitAbit(300);
             }
         }
     }
@@ -158,11 +142,7 @@ public class BasePage {
         for (int i = 0; i < 60; i++) {
             try {
                 if (getDriver().findElement(By.xpath(String.format(XPATH_ANY_ELEM_WITH_TEXT, text))).isDisplayed())
-                    try {
-                        Thread.sleep(300);
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
+                    waitAbit(300);
             } catch (Throwable e) {
                 break;
             }
@@ -187,11 +167,7 @@ public class BasePage {
                 if (getDriver().findElement(By.xpath(String.format(XPATH_ANY_ELEM_WITH_CONTENT_DESC, text))).isDisplayed())
                     break;
             } catch (Throwable e) {
-                try {
-                    Thread.sleep(300);
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
+                waitAbit(300);
             }
         }
     }
@@ -204,11 +180,7 @@ public class BasePage {
         for (int i = 0; i < 60; i++) {
             try {
                 if (getDriver().findElement(By.xpath(String.format(XPATH_ANY_ELEM_WITH_CONTENT_DESC, text))).isDisplayed())
-                    try {
-                        Thread.sleep(300);
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
+                    waitAbit(300);
             } catch (Throwable e) {
                 break;
             }
@@ -221,5 +193,25 @@ public class BasePage {
      */
     public void clickAnyElementWithContDesc(String text) {
         getDriver().findElement(By.xpath(String.format(XPATH_ANY_ELEM_WITH_CONTENT_DESC, text))).click();
+    }
+
+    /**
+     * Метод кликает по кнопке + (камера внизу экрана)
+     */
+    public void clickBottomCamera() {
+        getDriver().findElement(By.xpath(XPATH_CAMERA_BOTTOM_MENU)).click();
+    }
+
+    /**
+     * Метод пушит фото в галерею
+     * @param path String путь к фото внутри телефона
+     * @param file File сам файл
+     */
+    public void pushPhotosToGallery(String path, File file) {
+        try {
+            getDriver().pushFile(path, file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

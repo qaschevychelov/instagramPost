@@ -1,9 +1,15 @@
 package steps;
 
+import io.appium.java_client.android.AndroidDriver;
 import pages.AuthPage;
 
 public class AuthSteps {
-    private AuthPage authPage = new AuthPage();
+    AndroidDriver driver;
+    AuthPage authPage;
+    public AuthSteps(AndroidDriver driver) {
+        this.driver = driver;
+        authPage = new AuthPage(this.driver);
+    }
 
     /**
      * Метод авторизует пользователя
