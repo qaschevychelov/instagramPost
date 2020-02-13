@@ -1,10 +1,9 @@
 import io.appium.java_client.android.AndroidDriver;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import pages.BasePage;
+import pages.DriverManager;
 import steps.AuthSteps;
 import steps.GallerySteps;
-import pages.DriverManager;
 
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -18,7 +17,7 @@ import static org.junit.Assert.fail;
 /**
  * Автотест для Instagram
  */
-public class InstagramPost extends BasePage {
+public class InstagramPost {
     private AndroidDriver driver;
     private AuthSteps authSteps;
     private GallerySteps gallerySteps;
@@ -30,7 +29,8 @@ public class InstagramPost extends BasePage {
     @BeforeClass
     public void before() {
         driver = DriverManager.getDriver();
-        driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        DriverManager.currentWait = 10;
         authSteps = new AuthSteps(driver);
         gallerySteps = new GallerySteps(driver);
     }

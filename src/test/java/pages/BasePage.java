@@ -14,12 +14,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class BasePage {
     public AndroidDriver driver;
-
     private final String XPATH_ANY_ELEM_WITH_TEXT = "//*[@text='%s']";
     private final String XPATH_ANY_ELEM_WITH_CONTENT_DESC = "//*[@content-desc='%s']";
     private final String XPATH_ALLOW_CAMERA = "//*[@text='РАЗРЕШИТЬ' or @text='Разрешить']";
@@ -49,23 +49,17 @@ public class BasePage {
      * Метод разрешает доступ к камере устройства, если это необходимо.
      */
     public void allowCameraRecording() {
-        int count = 0;
-        while (count < 3) {
-            count++;
-            try {
-                waitAbit(2000);
-                if (isElementVisible(XPATH_ALLOW_CAMERA)) {
-                    getDriver().findElement(By.xpath(XPATH_ALLOW_CAMERA)).click();
-                    waitUntilNotVisible(XPATH_ALLOW_CAMERA);
-                    break;
-                }
-            } catch (Throwable e) {
-                waitAbit(2000);
-                if (isElementVisible(XPATH_ALLOW_CAMERA)) {
-                    getDriver().findElement(By.xpath(XPATH_ALLOW_CAMERA)).click();
-                    waitUntilNotVisible(XPATH_ALLOW_CAMERA);
-                    break;
-                }
+        try {
+            waitAbit(2000);
+            if (isElementVisible(XPATH_ALLOW_CAMERA)) {
+                getDriver().findElement(By.xpath(XPATH_ALLOW_CAMERA)).click();
+                waitUntilNotVisible(XPATH_ALLOW_CAMERA);
+            }
+        } catch (Throwable e) {
+            waitAbit(2000);
+            if (isElementVisible(XPATH_ALLOW_CAMERA)) {
+                getDriver().findElement(By.xpath(XPATH_ALLOW_CAMERA)).click();
+                waitUntilNotVisible(XPATH_ALLOW_CAMERA);
             }
         }
     }
@@ -89,7 +83,10 @@ public class BasePage {
      */
     public boolean isElementVisible(String locator) {
         try {
-            return getDriver().findElement(By.xpath(locator)).isDisplayed();
+            getDriver().manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
+            boolean isVisible = getDriver().findElement(By.xpath(locator)).isDisplayed();
+            getDriver().manage().timeouts().implicitlyWait(DriverManager.currentWait, TimeUnit.SECONDS);
+            return isVisible;
         } catch (Throwable e) {
             return false;
         }
@@ -135,6 +132,52 @@ public class BasePage {
     }
 
     /**
+     * Метод ожидает отображения любого элемента с составным текстом
+     * @param text String текст
+     */
+    public void waitUntilAnyElementWithTextsIsVisible(String text) {
+        String[] msgs;
+        // формируем локатор
+        StringBuilder buffer = new StringBuilder("//*[");
+        // если в тексте есть оператор [И], то формируем локатор через and
+        if (text.contains("[И]")) {
+            msgs = text.split("\\[И]");
+
+            for (String msg1 : msgs) {
+                buffer.append("@text='").append(msg1).append("' and ");
+            }
+            text = buffer.toString();
+            text = text.substring(0, text.lastIndexOf(" and "));
+
+            // если в тексте есть оператор [ИЛИ], то формируем локатор через or
+            // удобно в тех случаях, когда мы точно не знаем, какое сообщение будет отображаться
+        } else if (text.contains("[ИЛИ]")) {
+            msgs = text.split("\\[ИЛИ]");
+
+            for (String msg1 : msgs) {
+                buffer.append("@text='").append(msg1).append("' or ");
+            }
+            text = buffer.toString();
+            text = text.substring(0, text.lastIndexOf(" or "));
+        } else {
+            buffer.append("@text='").append(text).append("'");
+            text = buffer.toString();
+        }
+
+        //заканчиваем формировать локатор
+        text += "]";
+
+        for (int i = 0; i < 60; i++) {
+            try {
+                if (getDriver().findElement(By.xpath(text)).isDisplayed())
+                    break;
+            } catch (Throwable e) {
+                waitAbit(300);
+            }
+        }
+    }
+
+    /**
      * Метод ожидает исчезновения любого элемента с текстом
      * @param text String текст
      */
@@ -155,6 +198,44 @@ public class BasePage {
      */
     public void clickAnyElementWithText(String text) {
         getDriver().findElement(By.xpath(String.format(XPATH_ANY_ELEM_WITH_TEXT, text))).click();
+    }
+
+    /**
+     * Метод кликает на любой элемент с составным текстом
+     * @param text String текст
+     */
+    public void clickAnyElementWithTexts(String text) {
+        String[] msgs;
+        // формируем локатор
+        StringBuilder buffer = new StringBuilder("//*[");
+        // если в тексте есть оператор [И], то формируем локатор через and
+        if (text.contains("[И]")) {
+            msgs = text.split("\\[И]");
+
+            for (String msg1 : msgs) {
+                buffer.append("@text='").append(msg1).append("' and ");
+            }
+            text = buffer.toString();
+            text = text.substring(0, text.lastIndexOf(" and "));
+
+            // если в тексте есть оператор [ИЛИ], то формируем локатор через or
+            // удобно в тех случаях, когда мы точно не знаем, какое сообщение будет отображаться
+        } else if (text.contains("[ИЛИ]")) {
+            msgs = text.split("\\[ИЛИ]");
+
+            for (String msg1 : msgs) {
+                buffer.append("@text='").append(msg1).append("' or ");
+            }
+            text = buffer.toString();
+            text = text.substring(0, text.lastIndexOf(" or "));
+        } else {
+            buffer.append("@text='").append(text).append("'");
+            text = buffer.toString();
+        }
+
+        //заканчиваем формировать локатор
+        text += "]";
+        getDriver().findElement(By.xpath(text)).click();
     }
 
     /**

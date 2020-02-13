@@ -14,6 +14,7 @@ import java.util.Objects;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class DriverManager {
+    public static long currentWait;
     /**
      * Метод возвращает инстанс драйвера
      * @return AndroidDriver
@@ -27,7 +28,7 @@ public class DriverManager {
         cap.setCapability("udid", udid);
         cap.setCapability("deviceName", "device");
         cap.setCapability("platformVersion", "8.1");
-        cap.setCapability("app", System.getProperty("user.dir") + "/src/test/resources/apk/instagram.apk");
+        cap.setCapability("app", System.getProperty("user.dir").replaceAll("\\\\", "/") + "/src/test/resources/apk/instagram.apk");
         cap.setCapability("appPackage", "com.instagram.android");
         cap.setCapability("appWaitActivity", "com.instagram.nux.activity.SignedOutFragmentActivity");
         cap.setCapability("noReset", "true");

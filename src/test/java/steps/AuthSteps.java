@@ -17,8 +17,8 @@ public class AuthSteps {
      * @param pass String пароль
      */
     public void auth(String login, String pass) {
-        authPage.waitUntilAnyElementWithTextIsVisible("Войти");
-        authPage.clickAnyElementWithText("Войти");
+        authPage.waitUntilAnyElementWithTextsIsVisible("Войти[ИЛИ]Уже есть аккаунт? Войдите.");
+        authPage.clickAnyElementWithTexts("Войти[ИЛИ]Уже есть аккаунт? Войдите.");
         authPage.waitUntilAnyElementWithTextIsVisible("Вход");
         authPage.setLogin(login);
         authPage.setPass(pass);

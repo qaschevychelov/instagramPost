@@ -14,7 +14,7 @@
         <appium.v>7.3.0</appium.v>
         <browser>chrome</browser>
         <holdBrowserOpen>false</holdBrowserOpen>
-        <surefire.argLine></surefire.argLine>
+        <surefire.argLine>-Dfile.encoding=UTF-8</surefire.argLine>
     </properties>
 
     <dependencies>
