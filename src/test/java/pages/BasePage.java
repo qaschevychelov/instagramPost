@@ -82,14 +82,15 @@ public class BasePage {
      * @return boolean
      */
     public boolean isElementVisible(String locator) {
+        getDriver().manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
+        boolean isVisible;
         try {
-            getDriver().manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
-            boolean isVisible = getDriver().findElement(By.xpath(locator)).isDisplayed();
-            getDriver().manage().timeouts().implicitlyWait(DriverManager.currentWait, TimeUnit.SECONDS);
-            return isVisible;
+            isVisible = getDriver().findElement(By.xpath(locator)).isDisplayed();
         } catch (Throwable e) {
-            return false;
+            isVisible = false;
         }
+        getDriver().manage().timeouts().implicitlyWait(DriverManager.currentWait, TimeUnit.SECONDS);
+        return isVisible;
     }
 
     /**
