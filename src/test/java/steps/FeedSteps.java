@@ -2,6 +2,7 @@ package steps;
 
 import io.appium.java_client.android.AndroidDriver;
 import pages.FeedPage;
+import pages.StoryGalleryPage;
 
 /**
  * Логика ленты
@@ -9,10 +10,12 @@ import pages.FeedPage;
 public class FeedSteps {
     private AndroidDriver driver;
     private FeedPage feedPage;
+    private StoryGalleryPage storyGalleryPage;
 
     public FeedSteps(AndroidDriver driver) {
         this.driver = driver;
         feedPage = new FeedPage(this.driver);
+        storyGalleryPage = new StoryGalleryPage(this.driver);
     }
 
 
@@ -52,5 +55,59 @@ public class FeedSteps {
             } else
                 feedPage.waitAbit(timeout);
         }
+    }
+
+    /**
+     * Метод ждет перед публикацией истории
+     * От долгого бездействия приложение может закрыться
+     * Поэтому если ожидание долгое, мы каждые 10 секунд мы просто обращаемся к драйверу
+     * @param storyCount int номер истории
+     */
+    public void checkBeforeStoryTimeout(int storyCount) {
+        if (System.getProperty(String.format("beforeStory%d.timeout", storyCount)) != null) {
+            String sec = System.getProperty(String.format("beforeStory%d.timeout", storyCount));
+            int timeout = Integer.parseInt(sec) * 1000;
+            if (timeout > 50000) {
+                int max = timeout / 10000;
+                for (int i = 0; i < max; i++) {
+                    feedPage.getXMLSource();
+                    feedPage.waitAbit(10000);
+                }
+            } else
+                feedPage.waitAbit(timeout);
+        }
+    }
+
+    /**
+     * Метод публикует историю
+     * Если история уже есть, метод ее удаляет
+     */
+    public void postStory() {
+        feedPage.goToStoryCamera();
+        if (storyGalleryPage.isElementVisibleByText("Выделить")) {
+            storyGalleryPage.clickAnyElementWithText("Ещё");
+            storyGalleryPage.waitUntilAnyElementWithTextIsVisible("Удалить");
+            storyGalleryPage.clickAnyElementWithText("Удалить");
+            storyGalleryPage.waitUntilAnyElementWithTextIsVisible("Удалить это фото?");
+            storyGalleryPage.clickAnyElementWithText("Удалить");
+            feedPage.waitUntilAnyElementWithContDescIsVisible("Дом");
+            feedPage.waitUntilAddStoryBtnIsVisible();
+            feedPage.goToStoryCamera();
+        }
+        feedPage.allowCameraRecording();
+        feedPage.allowCameraRecording();
+        feedPage.allowCameraRecording();
+        feedPage.allowCameraRecording();
+        feedPage.waitUntilAnyElementWithTextIsVisible("ОБЫЧНЫЙ РЕЖИМ");
+        storyGalleryPage.goToGallery();
+        storyGalleryPage.waitUntilAnyElementWithTextIsVisible("ВЫБРАТЬ НЕСКОЛЬКО");
+        storyGalleryPage.selectPhoto(1);
+        storyGalleryPage.waitUntilAnyElementWithTextIsVisible("Ваша история");
+        storyGalleryPage.clickAnyElementWithText("Получатели:");
+        storyGalleryPage.waitUntilAnyElementWithTextIsVisible("Поделиться");
+        storyGalleryPage.share();
+        storyGalleryPage.waitUntilAnyElementWithTextIsVisible("Готово");
+        storyGalleryPage.clickAnyElementWithText("Готово");
+        feedPage.waitUntilAnyElementWithContDescIsVisible("Дом");
     }
 }

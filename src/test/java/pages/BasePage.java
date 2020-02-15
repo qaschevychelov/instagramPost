@@ -76,13 +76,15 @@ public class BasePage {
             waitAbit(2000);
             if (isElementVisible(XPATH_ALLOW_CAMERA)) {
                 getDriver().findElement(By.xpath(XPATH_ALLOW_CAMERA)).click();
-                waitUntilNotVisible(XPATH_ALLOW_CAMERA);
+                if (!isElementVisibleByContainsTexts("1 из[ИЛИ]2 из[ИЛИ]3 из[ИЛИ]4 из"))
+                    waitUntilNotVisible(XPATH_ALLOW_CAMERA);
             }
         } catch (Throwable e) {
             waitAbit(2000);
             if (isElementVisible(XPATH_ALLOW_CAMERA)) {
                 getDriver().findElement(By.xpath(XPATH_ALLOW_CAMERA)).click();
-                waitUntilNotVisible(XPATH_ALLOW_CAMERA);
+                if (!isElementVisibleByContainsTexts("1 из[ИЛИ]2 из[ИЛИ]3 из[ИЛИ]4 из"))
+                    waitUntilNotVisible(XPATH_ALLOW_CAMERA);
             }
         }
     }
@@ -109,6 +111,71 @@ public class BasePage {
         boolean isVisible;
         try {
             isVisible = getDriver().findElement(By.xpath(locator)).isDisplayed();
+        } catch (Throwable e) {
+            isVisible = false;
+        }
+        getDriver().manage().timeouts().implicitlyWait(DriverManager.currentWait, TimeUnit.SECONDS);
+        return isVisible;
+    }
+
+    /**
+     * Метод возвращает видимость элемента по его тексту
+     * @param text String текст элемента
+     * @return boolean
+     */
+    public boolean isElementVisibleByText(String text) {
+        getDriver().manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
+        boolean isVisible;
+        try {
+            isVisible = getDriver().findElement(By.xpath(String.format(XPATH_ANY_ELEM_WITH_TEXT, text))).isDisplayed();
+        } catch (Throwable e) {
+            isVisible = false;
+        }
+        getDriver().manage().timeouts().implicitlyWait(DriverManager.currentWait, TimeUnit.SECONDS);
+        return isVisible;
+    }
+
+    /**
+     * Метод возвращает видимость элемента по содержанию составного текста
+     * @param text String текст элемента
+     * @return boolean
+     */
+    public boolean isElementVisibleByContainsTexts(String text) {
+        String[] msgs;
+        // формируем локатор
+        StringBuilder buffer = new StringBuilder("//*[");
+        // если в тексте есть оператор [И], то формируем локатор через and
+        if (text.contains("[И]")) {
+            msgs = text.split("\\[И]");
+
+            for (String msg1 : msgs) {
+                buffer.append("contains(@text,'").append(msg1).append("') and ");
+            }
+            text = buffer.toString();
+            text = text.substring(0, text.lastIndexOf(" and "));
+
+            // если в тексте есть оператор [ИЛИ], то формируем локатор через or
+            // удобно в тех случаях, когда мы точно не знаем, какое сообщение будет отображаться
+        } else if (text.contains("[ИЛИ]")) {
+            msgs = text.split("\\[ИЛИ]");
+
+            for (String msg1 : msgs) {
+                buffer.append("contains(@text,'").append(msg1).append("') or ");
+            }
+            text = buffer.toString();
+            text = text.substring(0, text.lastIndexOf(" or "));
+        } else {
+            buffer.append("contains(@text,'").append(text).append("')");
+            text = buffer.toString();
+        }
+
+        //заканчиваем формировать локатор
+        text += "]";
+
+        getDriver().manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
+        boolean isVisible;
+        try {
+            isVisible = getDriver().findElement(By.xpath(text)).isDisplayed();
         } catch (Throwable e) {
             isVisible = false;
         }
@@ -262,12 +329,9 @@ public class BasePage {
      */
     public void waitUntilAnyElementWithContDescIsVisible(String text) {
         for (int i = 0; i < 60; i++) {
-            try {
-                if (getDriver().findElement(By.xpath(String.format(XPATH_ANY_ELEM_WITH_CONTENT_DESC, text))).isDisplayed())
-                    break;
-            } catch (Throwable e) {
-                waitAbit(300);
-            }
+            if (isElementVisible(String.format(XPATH_ANY_ELEM_WITH_CONTENT_DESC, text)))
+                break;
+            else waitAbit(300);
         }
     }
 
@@ -277,12 +341,9 @@ public class BasePage {
      */
     public void waitUntilAnyElementWithContDescIsNotVisible(String text) {
         for (int i = 0; i < 60; i++) {
-            try {
-                if (getDriver().findElement(By.xpath(String.format(XPATH_ANY_ELEM_WITH_CONTENT_DESC, text))).isDisplayed())
-                    waitAbit(300);
-            } catch (Throwable e) {
-                break;
-            }
+            if (isElementVisible(String.format(XPATH_ANY_ELEM_WITH_CONTENT_DESC, text)))
+                waitAbit(300);
+            else break;
         }
     }
 
@@ -420,16 +481,16 @@ public class BasePage {
     /**
      * Метод поиска элемента на странице.
      * Далее если элемент не найден, происходит countBy свайпов вверх. На каждой итерации проверяется нахождение элемента
-     * @param idORxpath - локатор на элемент (id или xpath)
+     * @param xpath - локатор на элемент (id или xpath)
      * @param countBy - количество свайпов
      * @return - элемент найден или нет
      */
-    public boolean findElementWithSwipeUp(String idORxpath, int... countBy) {
+    public boolean findElementWithSwipeUp(String xpath, int... countBy) {
         hideAndroidKeyboard();
         try {
             boolean isFoundElement;
             By myElement;
-            myElement = By.xpath(idORxpath);
+            myElement = By.xpath(xpath);
 
             isFoundElement = getDriver().findElements(myElement).size() > 0;
             int count = 0;

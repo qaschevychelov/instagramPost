@@ -44,13 +44,21 @@ public class GallerySteps {
      */
     public void pushPhotosToGallery() {
         String path = System.getProperty("user.dir") + "/src/test/resources/photos";
+        String storyPath = System.getProperty("user.dir") + "/src/test/resources/stories";
         List<Path> paths = new ArrayList<>();
+        List<Path> storyPaths = new ArrayList<>();
         try {
             paths = Files
                     .walk(Paths.get(path))
                     .filter(path1 -> path1.toFile().isFile())
                     .sorted()
                     .collect(Collectors.toList());
+            storyPaths = Files
+                    .walk(Paths.get(storyPath))
+                    .filter(path1 -> path1.toFile().isFile())
+                    .sorted()
+                    .collect(Collectors.toList());
+            paths.addAll(storyPaths);
         } catch (IOException e) {
             e.printStackTrace();
         }

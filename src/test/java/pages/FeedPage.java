@@ -12,9 +12,24 @@ public class FeedPage extends BasePage {
         super.driver = driver;
     }
 
+    /**
+     * локатор кнопки перехода в комментарии к посту
+     */
     private static final String XPATH_POST_COMM = "//*[*[contains(@text,'%s')]]/preceding-sibling::*[1]" +
             "//*[@resource-id='com.instagram.android:id/row_feed_button_comment']";
+
+    /**
+     * локатор поля ввода комментария
+     */
     private static final String XPATH_COMM_FIELD = "//*[@resource-id='com.instagram.android:id/layout_comment_thread_edittext']";
+
+    /**
+     * кнопка перехода в истории
+     */
+    private static final String XPATH_GO_TO_STORY = "//*[@resource-id='com.instagram.android:id/outer_container'][*[@text='Ваша история']]";
+
+    private static final String XPATH_ADD_STORY = "//*[@resource-id='com.instagram.android:id/avatar_container']" +
+            "/android.widget.ImageView[not(contains(@content-desc,'Новость'))]";
 
     /**
      * Метод ищет пост
@@ -41,5 +56,23 @@ public class FeedPage extends BasePage {
      */
     public void setComment(String comment) {
         getDriver().findElement(By.xpath(XPATH_COMM_FIELD)).sendKeys(comment);
+    }
+
+    /**
+     * Метод переходит в камеру для историй
+     */
+    public void goToStoryCamera() {
+        Assert.assertTrue(
+                findElementWithSwipeUp(XPATH_GO_TO_STORY),
+                "Кнопка перехода в истории не найдена"
+        );
+        getDriver().findElement(By.xpath(XPATH_GO_TO_STORY)).click();
+    }
+
+    /**
+     * Метод дожидается кнопки + для добавления истории
+     */
+    public void waitUntilAddStoryBtnIsVisible() {
+        waitUntilVisible(XPATH_ADD_STORY);
     }
 }

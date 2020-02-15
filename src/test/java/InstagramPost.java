@@ -164,4 +164,10 @@ public class InstagramPost {
             fail(e.getMessage());
         }
     }
+
+    @Test(enabled = true, description = "Публикация истории")
+    public void step_08() {
+        feedSteps.checkBeforeStoryTimeout(1);
+        feedSteps.postStory();
+    }
 }
