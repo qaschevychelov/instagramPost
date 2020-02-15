@@ -74,6 +74,7 @@ public class GallerySteps {
         newPostPage.setDescription(desc);
         newPostPage.clickAnyElementWithText("Поделиться");
         newPostPage.waitUntilAnyElementWithContDescIsVisible("Дом");
+        newPostPage.waitUntilAnyElementWithTextIsNotVisible("Завершение");
     }
 
     /**
@@ -85,11 +86,11 @@ public class GallerySteps {
     public void checkBeforePostTimeout(int postCount) {
         if (System.getProperty(String.format("beforePost%d.timeout", postCount)) != null) {
             String sec = System.getProperty(String.format("beforePost%d.timeout", postCount));
-            long timeout = Integer.parseInt(sec) * 1000;
+            int timeout = Integer.parseInt(sec) * 1000;
             if (timeout > 50000) {
-                long max = timeout / 10000;
-                for (long i = 0; i < max; i++) {
-                    galleryPage.getDriver().getPageSource();
+                int max = timeout / 10000;
+                for (int i = 0; i < max; i++) {
+                    galleryPage.getXMLSource();
                     galleryPage.waitAbit(10000);
                 }
             } else

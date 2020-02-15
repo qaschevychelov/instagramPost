@@ -1,8 +1,12 @@
 package pages;
 
 import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.MobileDriver;
+import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.touch.offset.PointOption;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
@@ -16,13 +20,16 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import static io.appium.java_client.touch.WaitOptions.waitOptions;
+import static java.time.Duration.ofSeconds;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class BasePage {
     public AndroidDriver driver;
-    private final String XPATH_ANY_ELEM_WITH_TEXT = "//*[@text='%s']";
-    private final String XPATH_ANY_ELEM_WITH_CONTENT_DESC = "//*[@content-desc='%s']";
-    private final String XPATH_ALLOW_CAMERA = "//*[@text='РАЗРЕШИТЬ' or @text='Разрешить']";
+    public final String XPATH_ANY_ELEM_WITH_TEXT = "//*[@text='%s']";
+    public final String XPATH_ANY_ELEM_CONT_TEXT = "//*[contains(@text,'%s')]";
+    public final String XPATH_ANY_ELEM_WITH_CONTENT_DESC = "//*[@content-desc='%s']";
+    public final String XPATH_ALLOW_CAMERA = "//*[@text='РАЗРЕШИТЬ' or @text='Разрешить']";
 
     // нижнее меню
     private final String XPATH_CAMERA_BOTTOM_MENU = "//*[@content-desc='Камера']" +
@@ -295,5 +302,203 @@ public class BasePage {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Кастомная реализация свайпа
+     *
+     * @param fromPoint координаты точки начала свайпа
+     * @param toPoint   координаты точки окончания свайпа
+     * @param seconds  время свайпа
+     */
+    public void swipeByCoordinate(PointOption fromPoint, PointOption toPoint, long seconds) {
+        WebDriver driver = getDriver();
+        TouchAction actions = new TouchAction((MobileDriver) driver);
+        actions.press(fromPoint)
+                .waitAction(waitOptions(ofSeconds(seconds)))
+                .moveTo(toPoint)
+                .release()
+                .perform();
+    }
+
+    /**
+     * перегруженный метод без задержки в свайпе
+     *
+     * @param fromPoint - координаты начала свайпа
+     * @param toPoint   - координаты окончания свайпа
+     */
+    public void swipeByCoordinate(PointOption fromPoint, PointOption toPoint) {
+        WebDriver driver = getDriver();
+        TouchAction actions = new TouchAction((MobileDriver) driver);
+        actions.press(fromPoint)
+                .waitAction(waitOptions(ofSeconds(0)))
+                .moveTo(toPoint)
+                .release()
+                .perform();
+    }
+
+    /**
+     * Скрывает клавиатуру
+     */
+    public void hideAndroidKeyboard() {
+        for (int i = 0; i < 50; i++) {
+            try {
+                if (getDriver().isKeyboardShown())
+                    getDriver().navigate().back();
+                break;
+            } catch (Throwable e) {
+                assertThat(e.getMessage(), i < 49);
+            }
+        }
+    }
+
+    /**
+     * Метод-обертка для поиска элемента на странице
+     * @param xpath - xpath на элемент
+     * @return - найден элемент или нет
+     */
+    public boolean elementSearch(String xpath) {
+        if (findElementWithSwipeDown(xpath, 30)) return true;
+        else
+            return findElementWithSwipeUp(xpath, 30);
+    }
+
+    /**
+     * Метод поиска элемента на странице.
+     * Далее если элемент не найден, происходит countBy свайпов вниз. На каждой итерации проверяется нахождение элемента
+     * @param xpath - если isID true, то передаем в xpath id элемента
+     * @param countBy - количество свайпов
+     * @return - элемент найден или нет
+     */
+    public boolean findElementWithSwipeDown(String xpath, int... countBy) {
+        hideAndroidKeyboard();
+        try {
+            boolean isFoundElement;
+            By myElement;
+            myElement = By.xpath(xpath);
+
+            isFoundElement = getDriver().findElements(myElement).size() > 0;
+            int count = 0;
+            String pageText = getXMLSource();
+
+            if (countBy.length > 0) {
+                while (!isFoundElement && count != countBy[0]) {
+                    swipeByCoordinate(
+                            PointOption.point(
+                                    DriverManager.deviceWidth / 2,
+                                    DriverManager.deviceHeight / 100 * 50
+                            ),
+                            PointOption.point(
+                                    DriverManager.deviceWidth / 2,
+                                    DriverManager.deviceHeight / 100 * 20)
+                    );
+                    isFoundElement = getDriver().findElements(myElement).size() > 0;
+                    count++;
+
+                    // если структура страницы совсем не изменилась, то можно выходить. Значит мы достигли границы
+                    if (getXMLSource().equals(pageText)) break;
+                    else pageText = getXMLSource();
+                }
+            } else {
+                while (!isFoundElement && count != 10) {
+                    swipeByCoordinate(
+                            PointOption.point(
+                                    DriverManager.deviceWidth / 2,
+                                    DriverManager.deviceHeight / 100 * 50
+                            ),
+                            PointOption.point(
+                                    DriverManager.deviceWidth / 2,
+                                    DriverManager.deviceHeight / 100 * 20)
+                    );
+                    isFoundElement = getDriver().findElements(myElement).size() > 0;
+                    count++;
+
+                    // если структура страницы совсем не изменилась, то можно выходить. Значит мы достигли границы
+                    if (getXMLSource().equals(pageText)) break;
+                    else pageText = getXMLSource();
+                }
+            }
+            return isFoundElement;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Метод поиска элемента на странице.
+     * Далее если элемент не найден, происходит countBy свайпов вверх. На каждой итерации проверяется нахождение элемента
+     * @param idORxpath - локатор на элемент (id или xpath)
+     * @param countBy - количество свайпов
+     * @return - элемент найден или нет
+     */
+    public boolean findElementWithSwipeUp(String idORxpath, int... countBy) {
+        hideAndroidKeyboard();
+        try {
+            boolean isFoundElement;
+            By myElement;
+            myElement = By.xpath(idORxpath);
+
+            isFoundElement = getDriver().findElements(myElement).size() > 0;
+            int count = 0;
+            String pageText = getXMLSource();
+
+            if (countBy.length > 0) {
+                while (!isFoundElement && count != countBy[0]) {
+                    swipeByCoordinate(
+                            PointOption.point(
+                                    DriverManager.deviceWidth / 2,
+                                    DriverManager.deviceHeight / 100 * 50
+                            ),
+                            PointOption.point(
+                                    DriverManager.deviceWidth / 2,
+                                    DriverManager.deviceHeight / 100 * 80)
+                    );
+                    isFoundElement = getDriver().findElements(myElement).size() > 0;
+                    count++;
+
+                    // если структура страницы совсем не изменилась, то можно выходить. Значит мы достигли границы
+                    if (getXMLSource().equals(pageText)) break;
+                    else pageText = getXMLSource();
+                }
+            } else {
+                while (!isFoundElement && count != 10) {
+                    swipeByCoordinate(
+                            PointOption.point(
+                                    DriverManager.deviceWidth / 2,
+                                    DriverManager.deviceHeight / 100 * 50
+                            ),
+                            PointOption.point(
+                                    DriverManager.deviceWidth / 2,
+                                    DriverManager.deviceHeight / 100 * 80)
+                    );
+                    isFoundElement = getDriver().findElements(myElement).size() > 0;
+                    count++;
+
+                    // если структура страницы совсем не изменилась, то можно выходить. Значит мы достигли границы
+                    if (getXMLSource().equals(pageText)) break;
+                    else pageText = getXMLSource();
+                }
+            }
+            return isFoundElement;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Получает XML-структуру страницы. Периодически из-за разрыва соединения может падать в ошибку.
+     * Поэтому метод выполнен с рекурсией, НО с обязательным счетчиком выхода, чтобы тест не завис
+     * */
+    public String getXMLSource() {
+        String source = "";
+        for (int i = 0; i < 50; i++) {
+            try {
+                source = getDriver().getPageSource();
+                break;
+            } catch (Throwable e) {
+                assertThat(e.getMessage(), i < 49);
+            }
+        }
+        return source;
     }
 }
