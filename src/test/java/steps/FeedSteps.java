@@ -2,21 +2,13 @@ package steps;
 
 import io.appium.java_client.android.AndroidDriver;
 import pages.FeedPage;
-import pages.GalleryPage;
-import pages.NewPostPage;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
+/**
+ * Логика ленты
+ */
 public class FeedSteps {
-    AndroidDriver driver;
-    FeedPage feedPage;
+    private AndroidDriver driver;
+    private FeedPage feedPage;
 
     public FeedSteps(AndroidDriver driver) {
         this.driver = driver;

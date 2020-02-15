@@ -3,13 +3,16 @@ package pages;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
 
+/**
+ * Пейдж экрана авторизации
+ */
 public class AuthPage extends BasePage {
     public AuthPage(AndroidDriver driver) {
         super.driver = driver;
     }
-    private final String XPATH_LOGIN = "//*[@resource-id='com.instagram.android:id/login_username']";
-    private final String XPATH_PASS = "//*[@resource-id='com.instagram.android:id/password']";
-    private final String XPATH_SIGN_IN_BTN = "//*[@resource-id='']";
+    private static final String XPATH_LOGIN = "//*[@resource-id='com.instagram.android:id/login_username']";
+    private static final String XPATH_PASS = "//*[@resource-id='com.instagram.android:id/password']";
+    private static final String XPATH_SIGN_IN_BTN = "//*[@resource-id='']";
 
     /**
      * Метод задает логин

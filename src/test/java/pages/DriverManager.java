@@ -3,10 +3,7 @@ package pages;
 import com.google.common.io.Files;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import io.appium.java_client.android.AndroidDriver;
-import jdk.nashorn.internal.objects.Global;
-import jdk.nashorn.internal.parser.JSONParser;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.io.BufferedReader;
@@ -20,14 +17,28 @@ import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
+/**
+ * Класс работы с драйвером
+ */
 public class DriverManager {
+    /**
+     * для хранения текущего implicitly wait
+     */
     public static long currentWait;
+
+    /**
+     * высота экрана
+     */
     public static int deviceHeight;
+
+    /**
+     * ширина экрана
+     */
     public static int deviceWidth;
+
     /**
      * Метод возвращает инстанс драйвера
      * @return AndroidDriver
@@ -59,6 +70,10 @@ public class DriverManager {
         return driver;
     }
 
+    /**
+     * Метод выполняет bash команды на телефоне
+     * @param command String команда
+     */
     private static void invokeCmdCommand(String command) {
         Process process = null;
         try {

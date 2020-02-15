@@ -1,7 +1,6 @@
 package steps;
 
 import io.appium.java_client.android.AndroidDriver;
-import pages.AuthPage;
 import pages.GalleryPage;
 import pages.NewPostPage;
 
@@ -14,10 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Логика галереи
+ */
 public class GallerySteps {
-    AndroidDriver driver;
-    GalleryPage galleryPage;
-    NewPostPage newPostPage;
+    private AndroidDriver driver;
+    private GalleryPage galleryPage;
+    private NewPostPage newPostPage;
 
     public GallerySteps(AndroidDriver driver) {
         this.driver = driver;

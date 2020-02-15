@@ -4,6 +4,9 @@ import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
 import org.testng.Assert;
 
+/**
+ * Пейдж ленты
+ */
 public class FeedPage extends BasePage {
     public FeedPage(AndroidDriver driver) {
         super.driver = driver;

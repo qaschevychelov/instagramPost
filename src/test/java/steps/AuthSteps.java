@@ -3,9 +3,12 @@ package steps;
 import io.appium.java_client.android.AndroidDriver;
 import pages.AuthPage;
 
+/**
+ * Логика для экрана авторизации
+ */
 public class AuthSteps {
-    AndroidDriver driver;
-    AuthPage authPage;
+    private AndroidDriver driver;
+    private AuthPage authPage;
     public AuthSteps(AndroidDriver driver) {
         this.driver = driver;
         authPage = new AuthPage(this.driver);

@@ -1,38 +1,54 @@
 package pages;
 
-import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.MobileDriver;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.touch.offset.PointOption;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.remote.DesiredCapabilities;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static io.appium.java_client.touch.WaitOptions.waitOptions;
 import static java.time.Duration.ofSeconds;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+/**
+ * Базовый пейдж
+ * Здесь сосредоточены низкоуровневые методы по работе с экраном
+ * Методы общие для всех экранов
+ */
 public class BasePage {
+    /**
+     * ссылка на драйвер
+     */
     public AndroidDriver driver;
+    /**
+     * локатор любого элемента с текстом
+     */
     public final String XPATH_ANY_ELEM_WITH_TEXT = "//*[@text='%s']";
+
+    /**
+     * локатор любого элемента, содержащего текст
+     */
     public final String XPATH_ANY_ELEM_CONT_TEXT = "//*[contains(@text,'%s')]";
+
+    /**
+     * локатор любого элемента с альтернативным текстом
+     */
     public final String XPATH_ANY_ELEM_WITH_CONTENT_DESC = "//*[@content-desc='%s']";
+
+    /**
+     * локатор кнопки подтверждения использования камеры
+     */
     public final String XPATH_ALLOW_CAMERA = "//*[@text='РАЗРЕШИТЬ' or @text='Разрешить']";
 
-    // нижнее меню
-    private final String XPATH_CAMERA_BOTTOM_MENU = "//*[@content-desc='Камера']" +
+    /**
+     * локатор центральной кнопки нижнего меню
+     */
+    public final String XPATH_CAMERA_BOTTOM_MENU = "//*[@content-desc='Камера']" +
             "//*[@resource-id='com.instagram.android:id/tab_icon']";
 
     /**
@@ -130,12 +146,9 @@ public class BasePage {
      */
     public void waitUntilAnyElementWithTextIsVisible(String text) {
         for (int i = 0; i < 60; i++) {
-            try {
-                if (getDriver().findElement(By.xpath(String.format(XPATH_ANY_ELEM_WITH_TEXT, text))).isDisplayed())
-                    break;
-            } catch (Throwable e) {
-                waitAbit(300);
-            }
+            if (isElementVisible(String.format(XPATH_ANY_ELEM_WITH_TEXT, text)))
+                break;
+            else waitAbit(300);
         }
     }
 
@@ -191,12 +204,9 @@ public class BasePage {
      */
     public void waitUntilAnyElementWithTextIsNotVisible(String text) {
         for (int i = 0; i < 60; i++) {
-            try {
-                if (getDriver().findElement(By.xpath(String.format(XPATH_ANY_ELEM_WITH_TEXT, text))).isDisplayed())
-                    waitAbit(300);
-            } catch (Throwable e) {
-                break;
-            }
+            if (isElementVisible(String.format(XPATH_ANY_ELEM_WITH_TEXT, text)))
+                waitAbit(300);
+            else break;
         }
     }
 
@@ -302,23 +312,6 @@ public class BasePage {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Кастомная реализация свайпа
-     *
-     * @param fromPoint координаты точки начала свайпа
-     * @param toPoint   координаты точки окончания свайпа
-     * @param seconds  время свайпа
-     */
-    public void swipeByCoordinate(PointOption fromPoint, PointOption toPoint, long seconds) {
-        WebDriver driver = getDriver();
-        TouchAction actions = new TouchAction((MobileDriver) driver);
-        actions.press(fromPoint)
-                .waitAction(waitOptions(ofSeconds(seconds)))
-                .moveTo(toPoint)
-                .release()
-                .perform();
     }
 
     /**

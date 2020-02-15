@@ -4,11 +4,14 @@ import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
+/**
+ * Пейдж галереи для выбора фото
+ */
 public class GalleryPage extends BasePage {
     public GalleryPage(AndroidDriver driver) {
         super.driver = driver;
     }
-    private final String XPATH_MINI_IMG = "//*[@content-desc='Миниатюра фото']";
+    private static final String XPATH_MINI_IMG = "//*[@content-desc='Миниатюра фото']";
 
     /**
      * Метод кликает по миниатюре фото
