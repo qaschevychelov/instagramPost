@@ -67,6 +67,7 @@ public class InstagramPost {
     @Test(enabled = true, description = "Публикация поста 1")
     public void step_02() {
         try {
+            gallerySteps.checkBeforePostTimeout(1);
             gallerySteps.goToGalleryMenu();
             Path path = Files
                         .walk(Paths.get(System.getProperty("user.dir") + "/src/test/resources/postDescription"))

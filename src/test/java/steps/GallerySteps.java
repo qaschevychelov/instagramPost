@@ -33,9 +33,7 @@ public class GallerySteps {
     public void goToGalleryMenu() {
         galleryPage.clickBottomCamera();
         galleryPage.allowCameraRecording();
-        galleryPage.allowCameraRecording();
         galleryPage.waitUntilAnyElementWithTextIsVisible("√¿À≈–≈ﬂ");
-        galleryPage.allowCameraRecording();
         galleryPage.allowCameraRecording();
         galleryPage.clickAnyElementWithText("√¿À≈–≈ﬂ");
         galleryPage.waitUntilAnyElementWithTextIsVisible("√‡ÎÂÂˇ");

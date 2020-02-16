@@ -35,7 +35,7 @@ public class FeedSteps {
         feedPage.setComment(comment);
         feedPage.clickAnyElementWithText("Опубликовать");
         feedPage.waitUntilAnyElementWithTextIsNotVisible("Публикается...");
-        if (feedPage.isElementVisibleByText("Не удалось опубликовать комментарий")) {
+        if (feedPage.isElementVisibleByText("Не удалось опубликовать комментарий") || feedPage.isElementVisibleByText("Действие заблокировано")) {
             this.driver.navigate().back();
             feedPage.waitUntilAnyElementWithTextIsNotVisible("Не удалось опубликовать комментарий");
         }
@@ -117,10 +117,6 @@ public class FeedSteps {
         }
         // очень много разрешений
         feedPage.allowCameraRecording();
-        feedPage.allowCameraRecording();
-        feedPage.allowCameraRecording();
-        feedPage.allowCameraRecording();
-        feedPage.allowCameraRecording();
         feedPage.waitUntilAnyElementWithTextIsVisible("ОБЫЧНЫЙ РЕЖИМ");
         storyGalleryPage.goToGallery();
         storyGalleryPage.waitUntilAnyElementWithTextIsVisible("ВЫБРАТЬ НЕСКОЛЬКО");
@@ -156,6 +152,6 @@ public class FeedSteps {
         settingsPage.getDriver().navigate().back();
         feedPage.waitUntilAnyElementWithTextIsVisible("Редактировать профиль");
         feedPage.clickAnyElementWithContDesc("Дом");
-        feedPage.waitUntilAnyElementWithTextIsVisible("Ваша история");
+        feedPage.waitUntilAnyElementWithTextsIsVisible("Ваша история[ИЛИ]Добро пожаловать в Instagram");
     }
 }

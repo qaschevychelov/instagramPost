@@ -23,6 +23,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 public class BasePage {
     /**
+     * переменная для ожидания камеры
+     */
+    private boolean firstTryHappened = false;
+
+    /**
      * ссылка на драйвер
      */
     public AndroidDriver driver;
@@ -73,21 +78,26 @@ public class BasePage {
      * Метод разрешает доступ к камере устройства, если это необходимо.
      */
     public void allowCameraRecording() {
+        if (!firstTryHappened) {
+            try {
+                waitUntilAnyElementWithTextsIsVisible("РАЗРЕШИТЬ[ИЛИ]Разрешить");
+                firstTryHappened = true;
+            } catch (Throwable e) {}
+        } else waitAbit(4000);
         try {
-            waitAbit(2000);
-            if (isElementVisible(XPATH_ALLOW_CAMERA)) {
+            int counter = 0;
+            while (isElementVisible(XPATH_ALLOW_CAMERA) && counter != 10) {
                 getDriver().findElement(By.xpath(XPATH_ALLOW_CAMERA)).click();
-                if (!isElementVisibleByContainsTexts("1 из [ИЛИ]2 из [ИЛИ]3 из [ИЛИ]4 из "))
-                    waitUntilNotVisible(XPATH_ALLOW_CAMERA);
-                else waitAbit(2000);
+                waitAbit(2000);
+                counter++;
             }
         } catch (Throwable e) {
             waitAbit(2000);
-            if (isElementVisible(XPATH_ALLOW_CAMERA)) {
+            int counter = 0;
+            while (isElementVisible(XPATH_ALLOW_CAMERA) && counter != 10) {
                 getDriver().findElement(By.xpath(XPATH_ALLOW_CAMERA)).click();
-                if (!isElementVisibleByContainsTexts("1 из[ИЛИ]2 из[ИЛИ]3 из[ИЛИ]4 из"))
-                    waitUntilNotVisible(XPATH_ALLOW_CAMERA);
-                else waitAbit(2000);
+                waitAbit(2000);
+                counter++;
             }
         }
     }
