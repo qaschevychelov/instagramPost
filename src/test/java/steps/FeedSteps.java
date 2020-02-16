@@ -2,6 +2,7 @@ package steps;
 
 import io.appium.java_client.android.AndroidDriver;
 import pages.FeedPage;
+import pages.SettingsPage;
 import pages.StoryGalleryPage;
 
 /**
@@ -11,11 +12,13 @@ public class FeedSteps {
     private AndroidDriver driver;
     private FeedPage feedPage;
     private StoryGalleryPage storyGalleryPage;
+    private SettingsPage settingsPage;
 
     public FeedSteps(AndroidDriver driver) {
         this.driver = driver;
         feedPage = new FeedPage(this.driver);
         storyGalleryPage = new StoryGalleryPage(this.driver);
+        settingsPage = new SettingsPage(this.driver);
     }
 
 
@@ -32,6 +35,10 @@ public class FeedSteps {
         feedPage.setComment(comment);
         feedPage.clickAnyElementWithText("Опубликовать");
         feedPage.waitUntilAnyElementWithTextIsNotVisible("Публикается...");
+        if (feedPage.isElementVisibleByText("Не удалось опубликовать комментарий")) {
+            this.driver.navigate().back();
+            feedPage.waitUntilAnyElementWithTextIsNotVisible("Не удалось опубликовать комментарий");
+        }
         this.driver.navigate().back();
         feedPage.waitUntilAnyElementWithContDescIsVisible("Дом");
     }
@@ -84,16 +91,32 @@ public class FeedSteps {
      */
     public void postStory() {
         feedPage.goToStoryCamera();
-        if (storyGalleryPage.isElementVisibleByText("Выделить")) {
+        if (storyGalleryPage.isElementVisibleByContainsTexts("Выделите, чтобы сохранить") || storyGalleryPage.isElementVisibleByText("Выделить")) {
             storyGalleryPage.clickAnyElementWithText("Ещё");
             storyGalleryPage.waitUntilAnyElementWithTextIsVisible("Удалить");
             storyGalleryPage.clickAnyElementWithText("Удалить");
             storyGalleryPage.waitUntilAnyElementWithTextIsVisible("Удалить это фото?");
             storyGalleryPage.clickAnyElementWithText("Удалить");
             feedPage.waitUntilAnyElementWithContDescIsVisible("Дом");
-            feedPage.waitUntilAddStoryBtnIsVisible();
+            // удаление истории не всегда может срабатывать, если есть проблемы с производительностью
+            // поэтому повторим
+            try {
+                feedPage.waitUntilAddStoryBtnIsVisible();
+            } catch (Throwable e) {
+                feedPage.goToStoryCamera();
+                storyGalleryPage.waitUntilAnyElementWithTextIsVisible("Ещё");
+                storyGalleryPage.clickAnyElementWithText("Ещё");
+                storyGalleryPage.waitUntilAnyElementWithTextIsVisible("Удалить");
+                storyGalleryPage.clickAnyElementWithText("Удалить");
+                storyGalleryPage.waitUntilAnyElementWithTextIsVisible("Удалить это фото?");
+                storyGalleryPage.clickAnyElementWithText("Удалить");
+                feedPage.waitUntilAnyElementWithContDescIsVisible("Дом");
+                feedPage.waitUntilAddStoryBtnIsVisible();
+            }
             feedPage.goToStoryCamera();
         }
+        // очень много разрешений
+        feedPage.allowCameraRecording();
         feedPage.allowCameraRecording();
         feedPage.allowCameraRecording();
         feedPage.allowCameraRecording();
@@ -109,5 +132,30 @@ public class FeedSteps {
         storyGalleryPage.waitUntilAnyElementWithTextIsVisible("Готово");
         storyGalleryPage.clickAnyElementWithText("Готово");
         feedPage.waitUntilAnyElementWithContDescIsVisible("Дом");
+    }
+
+    /**
+     * Метод отключает сохранение фото после публикации
+     */
+    public void turnOffSavings() {
+        feedPage.clickAnyElementWithContDesc("Профиль");
+        feedPage.waitUntilAnyElementWithTextIsVisible("Редактировать профиль");
+        feedPage.clickAnyElementWithContDesc("Параметры");
+        feedPage.waitUntilAnyElementWithTextIsVisible("Настройки");
+        feedPage.clickAnyElementWithText("Настройки");
+        feedPage.waitUntilAnyElementWithTextIsVisible("Аккаунт");
+        feedPage.clickAnyElementWithText("Аккаунт");
+        feedPage.waitUntilAnyElementWithTextIsVisible("Оригинальные публикации");
+        feedPage.clickAnyElementWithText("Оригинальные публикации");
+        feedPage.waitUntilAnyElementWithTextIsVisible("Оригинальные публикации");
+        settingsPage.turnOffSavings();
+        settingsPage.getDriver().navigate().back();
+        settingsPage.waitUntilAnyElementWithTextIsVisible("Аккаунт");
+        settingsPage.getDriver().navigate().back();
+        settingsPage.waitUntilAnyElementWithTextIsVisible("Настройки");
+        settingsPage.getDriver().navigate().back();
+        feedPage.waitUntilAnyElementWithTextIsVisible("Редактировать профиль");
+        feedPage.clickAnyElementWithContDesc("Дом");
+        feedPage.waitUntilAnyElementWithTextIsVisible("Ваша история");
     }
 }

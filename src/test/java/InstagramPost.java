@@ -1,7 +1,9 @@
 import io.appium.java_client.android.AndroidDriver;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import pages.DriverManager;
+import pages.SessionVar;
 import steps.AuthSteps;
 import steps.FeedSteps;
 import steps.GallerySteps;
@@ -43,8 +45,8 @@ public class InstagramPost {
         feedSteps = new FeedSteps(driver);
 
         // зададим логин/пароль
-        login = DriverManager.getConfig("login");
-        pass = DriverManager.getConfig("pass");
+        login = DriverManager.getConfig(SessionVar.LOGIN);
+        pass = DriverManager.getConfig(SessionVar.PASS);
     }
 
     @Test(enabled = true, description = "Авторизация в instagram")
@@ -55,13 +57,14 @@ public class InstagramPost {
             // затем авторизация (внутри проходит очистка кэша)
             // это необходимо для постоянно контролируемого поведения
             authSteps.auth(login, pass);
+            feedSteps.turnOffSavings();
         } catch (Throwable e) {
             e.printStackTrace();
             fail(e.getMessage());
         }
     }
 
-    @Test(enabled = true, description = "Публикация поста 1 в instagram")
+    @Test(enabled = true, description = "Публикация поста 1")
     public void step_02() {
         try {
             gallerySteps.goToGalleryMenu();
@@ -95,7 +98,7 @@ public class InstagramPost {
         }
     }
 
-    @Test(enabled = true, description = "Публикация поста 2 в instagram")
+    @Test(enabled = true, description = "Публикация поста 2")
     public void step_04() {
         try {
             gallerySteps.checkBeforePostTimeout(2);
@@ -130,7 +133,7 @@ public class InstagramPost {
         }
     }
 
-    @Test(enabled = true, description = "Публикация поста 3 в instagram")
+    @Test(enabled = true, description = "Публикация поста 3")
     public void step_06() {
         try {
             gallerySteps.checkBeforePostTimeout(3);
@@ -169,5 +172,11 @@ public class InstagramPost {
     public void step_08() {
         feedSteps.checkBeforeStoryTimeout(1);
         feedSteps.postStory();
+    }
+
+    @AfterClass
+    public void after() {
+        this.driver.closeApp();
+        this.driver.quit();
     }
 }

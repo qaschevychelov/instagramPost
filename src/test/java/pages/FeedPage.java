@@ -28,8 +28,10 @@ public class FeedPage extends BasePage {
      */
     private static final String XPATH_GO_TO_STORY = "//*[@resource-id='com.instagram.android:id/outer_container'][*[@text='Ваша история']]";
 
-    private static final String XPATH_ADD_STORY = "//*[@resource-id='com.instagram.android:id/avatar_container']" +
-            "/android.widget.ImageView[not(contains(@content-desc,'Новость'))]";
+    /**
+     * локатор опубликованной истории
+     */
+    private static final String XPATH_SEEN_STORY = "//*[@resource-id='com.instagram.android:id/seen_state']";
 
     /**
      * Метод ищет пост
@@ -73,6 +75,6 @@ public class FeedPage extends BasePage {
      * Метод дожидается кнопки + для добавления истории
      */
     public void waitUntilAddStoryBtnIsVisible() {
-        waitUntilVisible(XPATH_ADD_STORY);
+        waitUntilNotVisible(XPATH_SEEN_STORY);
     }
 }

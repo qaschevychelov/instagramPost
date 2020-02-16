@@ -106,7 +106,7 @@ public class DriverManager {
      * @param prop String поле для поиска
      * @return String
      */
-    public static String getConfig(String prop) {
+    public static String getConfig(SessionVar prop) {
         String str = "";
         try {
             str = String.join("", Files.readLines(
@@ -121,6 +121,6 @@ public class DriverManager {
         String configPath = str;
         Map<String, Object> map = new Gson().fromJson(configPath, itemsType);
 
-        return map.get(prop).toString();
+        return map.get(prop.getValue()).toString();
     }
 }

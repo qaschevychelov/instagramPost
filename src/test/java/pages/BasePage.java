@@ -4,6 +4,7 @@ import io.appium.java_client.MobileDriver;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.touch.offset.PointOption;
+import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
@@ -76,8 +77,9 @@ public class BasePage {
             waitAbit(2000);
             if (isElementVisible(XPATH_ALLOW_CAMERA)) {
                 getDriver().findElement(By.xpath(XPATH_ALLOW_CAMERA)).click();
-                if (!isElementVisibleByContainsTexts("1 из[ИЛИ]2 из[ИЛИ]3 из[ИЛИ]4 из"))
+                if (!isElementVisibleByContainsTexts("1 из [ИЛИ]2 из [ИЛИ]3 из [ИЛИ]4 из "))
                     waitUntilNotVisible(XPATH_ALLOW_CAMERA);
+                else waitAbit(2000);
             }
         } catch (Throwable e) {
             waitAbit(2000);
@@ -85,6 +87,7 @@ public class BasePage {
                 getDriver().findElement(By.xpath(XPATH_ALLOW_CAMERA)).click();
                 if (!isElementVisibleByContainsTexts("1 из[ИЛИ]2 из[ИЛИ]3 из[ИЛИ]4 из"))
                     waitUntilNotVisible(XPATH_ALLOW_CAMERA);
+                else waitAbit(2000);
             }
         }
     }
@@ -96,9 +99,10 @@ public class BasePage {
     public void waitUntilVisible(String locator) {
         for (int i = 0; i < 60; i++) {
             if (isElementVisible(locator))
-                break;
+                return;
             else waitAbit(300);
         }
+        Assert.fail("Элемент '" + locator + "' все еще не виден спустя 20 секунд!");
     }
 
     /**
@@ -116,6 +120,23 @@ public class BasePage {
         }
         getDriver().manage().timeouts().implicitlyWait(DriverManager.currentWait, TimeUnit.SECONDS);
         return isVisible;
+    }
+
+    /**
+     * Метод возвращает состояние элемента
+     * @param locator String локатор элемента
+     * @return boolean
+     */
+    public boolean isElementChecked(String locator) {
+        getDriver().manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
+        boolean isChecked;
+        try {
+            isChecked = Boolean.parseBoolean(getDriver().findElement(By.xpath(locator)).getAttribute("checked"));
+        } catch (Throwable e) {
+            isChecked = false;
+        }
+        getDriver().manage().timeouts().implicitlyWait(DriverManager.currentWait, TimeUnit.SECONDS);
+        return isChecked;
     }
 
     /**
@@ -191,8 +212,9 @@ public class BasePage {
         for (int i = 0; i < 60; i++) {
             if (isElementVisible(locator))
                 waitAbit(300);
-            else break;
+            else return;
         }
+        Assert.fail("Элемент '" + locator + "' все также виден спустя 20 секунд!");
     }
 
     /**
@@ -214,9 +236,10 @@ public class BasePage {
     public void waitUntilAnyElementWithTextIsVisible(String text) {
         for (int i = 0; i < 60; i++) {
             if (isElementVisible(String.format(XPATH_ANY_ELEM_WITH_TEXT, text)))
-                break;
+                return;
             else waitAbit(300);
         }
+        Assert.fail("Элемент с текстом '" + text + "' все еще не виден спустя 20 секунд!");
     }
 
     /**
@@ -256,13 +279,11 @@ public class BasePage {
         text += "]";
 
         for (int i = 0; i < 60; i++) {
-            try {
-                if (getDriver().findElement(By.xpath(text)).isDisplayed())
-                    break;
-            } catch (Throwable e) {
-                waitAbit(300);
-            }
+            if (isElementVisible(text))
+                return;
+            else waitAbit(300);
         }
+        Assert.fail("Элемент с составным текстом '" + text + "' все еще не виден спустя 20 секунд!");
     }
 
     /**
@@ -273,8 +294,9 @@ public class BasePage {
         for (int i = 0; i < 60; i++) {
             if (isElementVisible(String.format(XPATH_ANY_ELEM_WITH_TEXT, text)))
                 waitAbit(300);
-            else break;
+            else return;
         }
+        Assert.fail("Элемент с текстом '" + text + "' до сих пор виден спустя 20 секунд!");
     }
 
     /**
@@ -330,9 +352,10 @@ public class BasePage {
     public void waitUntilAnyElementWithContDescIsVisible(String text) {
         for (int i = 0; i < 60; i++) {
             if (isElementVisible(String.format(XPATH_ANY_ELEM_WITH_CONTENT_DESC, text)))
-                break;
+                return;
             else waitAbit(300);
         }
+        Assert.fail("Элемент с альтернативным текстом '" + text + "' все еще не виден спустя 20 секунд!");
     }
 
     /**
@@ -343,8 +366,9 @@ public class BasePage {
         for (int i = 0; i < 60; i++) {
             if (isElementVisible(String.format(XPATH_ANY_ELEM_WITH_CONTENT_DESC, text)))
                 waitAbit(300);
-            else break;
+            else return;
         }
+        Assert.fail("Элемент с альтернативным текстом '" + text + "' все еще виден спустя 20 секунд!");
     }
 
     /**
@@ -426,6 +450,7 @@ public class BasePage {
      */
     public boolean findElementWithSwipeDown(String xpath, int... countBy) {
         hideAndroidKeyboard();
+        getDriver().manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
         try {
             boolean isFoundElement;
             By myElement;
@@ -472,6 +497,7 @@ public class BasePage {
                     else pageText = getXMLSource();
                 }
             }
+            getDriver().manage().timeouts().implicitlyWait(DriverManager.currentWait, TimeUnit.SECONDS);
             return isFoundElement;
         } catch (Exception e) {
             return false;
@@ -487,6 +513,7 @@ public class BasePage {
      */
     public boolean findElementWithSwipeUp(String xpath, int... countBy) {
         hideAndroidKeyboard();
+        getDriver().manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
         try {
             boolean isFoundElement;
             By myElement;
@@ -533,6 +560,7 @@ public class BasePage {
                     else pageText = getXMLSource();
                 }
             }
+            getDriver().manage().timeouts().implicitlyWait(DriverManager.currentWait, TimeUnit.SECONDS);
             return isFoundElement;
         } catch (Exception e) {
             return false;
