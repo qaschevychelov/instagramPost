@@ -1,6 +1,7 @@
 package steps;
 
 import io.appium.java_client.android.AndroidDriver;
+import pages.DriverManager;
 import pages.GalleryPage;
 import pages.NewPostPage;
 
@@ -43,6 +44,9 @@ public class GallerySteps {
      * Метод пушит фото из ресурсов внутрь телефона
      */
     public void pushPhotosToGallery() {
+        String udid = (System.getProperty("udid") != null) ? System.getProperty("udid") : "emulator-5554";
+        DriverManager.invokeCmdCommand("adb -s " + udid + " shell rm -Rrf /mnt/sdcard/Pictures");
+
         String path = System.getProperty("user.dir") + "/src/test/resources/photos";
         String storyPath = System.getProperty("user.dir") + "/src/test/resources/stories";
         List<Path> paths = new ArrayList<>();

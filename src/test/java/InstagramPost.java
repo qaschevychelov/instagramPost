@@ -57,7 +57,11 @@ public class InstagramPost {
             // затем авторизация (внутри проходит очистка кэша)
             // это необходимо для постоянно контролируемого поведения
             authSteps.auth(login, pass);
+
+            // отключим сохранение публикаций в галерею
             feedSteps.turnOffSavings();
+            // сохраним крайние 3 поста (если они есть) в target/feed
+            feedSteps.walkThroughFeed();
         } catch (Throwable e) {
             e.printStackTrace();
             fail(e.getMessage());

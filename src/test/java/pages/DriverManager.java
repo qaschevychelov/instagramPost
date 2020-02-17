@@ -74,7 +74,7 @@ public class DriverManager {
      * Метод выполняет bash команды на телефоне
      * @param command String команда
      */
-    private static void invokeCmdCommand(String command) {
+    public static void invokeCmdCommand(String command) {
         Process process = null;
         try {
             process = Runtime.getRuntime().exec(command);

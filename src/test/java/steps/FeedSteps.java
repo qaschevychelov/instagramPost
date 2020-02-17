@@ -5,6 +5,13 @@ import pages.FeedPage;
 import pages.SettingsPage;
 import pages.StoryGalleryPage;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import static io.appium.java_client.touch.offset.PointOption.point;
+
 /**
  * Логика ленты
  */
@@ -153,5 +160,44 @@ public class FeedSteps {
         feedPage.waitUntilAnyElementWithTextIsVisible("Редактировать профиль");
         feedPage.clickAnyElementWithContDesc("Дом");
         feedPage.waitUntilAnyElementWithTextsIsVisible("Ваша история[ИЛИ]Добро пожаловать в Instagram");
+    }
+
+    /**
+     * Метод пробегается по ленте и сохраняет 3 крайних поста в /target/feed/
+     */
+    public void walkThroughFeed() {
+        for (int i = 0; i < 3; i++) {
+            feedPage.normalizePostImg();
+            feedPage.savePostImg("target/feed/postImg" + (i +1) + ".png");
+            String desc = feedPage.findPostDescription();
+            File fileDesc = new File("target/feed/postDesc" + (i +1) + ".txt");
+            if (fileDesc.isFile()) fileDesc.delete();
+            try {
+                if (!fileDesc.isFile() && fileDesc.createNewFile()) {
+                    //Сохраняем в файл
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(fileDesc));
+                    writer.write(desc);
+                    writer.flush();
+                    writer.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            String comm = feedPage.findCommDescription();
+            File fileComm = new File("target/feed/postComm" + (i +1) + ".txt");
+            if (fileComm.isFile()) fileComm.delete();
+            try {
+                if (!fileComm.isFile() && fileComm.createNewFile()) {
+                    //Сохраняем в файл
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(fileComm));
+                    writer.write(comm);
+                    writer.flush();
+                    writer.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            feedPage.goToNextPost();
+        }
     }
 }
