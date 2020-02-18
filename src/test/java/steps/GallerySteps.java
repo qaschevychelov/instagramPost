@@ -87,8 +87,26 @@ public class GallerySteps {
         galleryPage.waitUntilAnyElementWithTextIsVisible("Новая публикация");
         newPostPage.setDescription(desc);
         newPostPage.clickAnyElementWithText("Поделиться");
+        if (newPostPage.isElementVisibleByText("Действие заблокировано")) {
+            int counter = 0;
+            while (newPostPage.isElementVisibleByText("Действие заблокировано") && counter != 10) {
+                this.driver.navigate().back();
+                newPostPage.waitAbit(2000);
+                counter++;
+            }
+            newPostPage.waitUntilAnyElementWithTextIsNotVisible("Действие заблокировано");
+        }
         newPostPage.waitUntilAnyElementWithContDescIsVisible("Дом");
         newPostPage.waitUntilAnyElementWithTextIsNotVisible("Завершение");
+        if (newPostPage.isElementVisibleByText("Действие заблокировано")) {
+            int counter = 0;
+            while (newPostPage.isElementVisibleByText("Действие заблокировано") && counter != 10) {
+                this.driver.navigate().back();
+                newPostPage.waitAbit(2000);
+                counter++;
+            }
+            newPostPage.waitUntilAnyElementWithTextIsNotVisible("Действие заблокировано");
+        }
     }
 
     /**
